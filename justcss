@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .event.card {
+            margin-bottom: 20px;
+        }
+        .card-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+        }
+        .date-range {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .days {
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .month {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .card-title {
+            flex-grow: 1;
+            text-align: left;
+        }
+        .btn-primary {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Eventos</h1>
+    <div class="row">
+        <!-- Simulated Card 1 -->
+        <div class="col-md-6">
+            <div class="event card">
+                <div class="card-body">
+                    <div class="date-range">
+                        <span class="days">01 a 02</span>
+                        <span class="month">Jan</span>
+                    </div>
+                    <h5 class="card-title">Descrição do Evento 1</h5>
+                    <a href="#" class="btn btn-primary">+</a>
+                </div>
+            </div>
+        </div>
+        <!-- Simulated Card 2 -->
+        <div class="col-md-6">
+            <div class="event card">
+                <div class="card-body">
+                    <div class="date-range">
+                        <span class="days">03 a 04</span>
+                        <span class="month">Jan</span>
+                    </div>
+                    <h5 class="card-title">Descrição do Evento 2</h5>
+                    <a href="#" class="btn btn-primary">+</a>
+                </div>
+            </div>
+        </div>
+        <!-- Simulated Card 3 -->
+        <div class="col-md-6">
+            <div class="event card">
+                <div class="card-body">
+                    <div class="date-range">
+                        <span class="days">05 a 06</span>
+                        <span class="month">Jan</span>
+                    </div>
+                    <h5 class="card-title">Descrição do Evento 3</h5>
+                    <a href="#" class="btn btn-primary">+</a>
+                </div>
+            </div>
+        </div>
+        <!-- Simulated Card 4 -->
+        <div class="col-md-6">
+            <div class="event card">
+                <div class="card-body">
+                    <div class="date-range">
+                        <span class="days">07 a 08</span>
+                        <span class="month">Jan</span>
+                    </div>
+                    <h5 class="card-title">Descrição do Evento 4</h5>
+                    <a href="#" class="btn btn-primary">+</a>
+                </div>
+            </div>
+        </div>
+        <!-- Simulated Card 5 -->
+        <div class="col-md-6">
+            <div class="event card">
+                <div class="card-body">
+                    <div class="date-range">
+                        <span class="days">09 a 10</span>
+                        <span class="month">Jan</span>
+                    </div>
+                    <h5 class="card-title">Descrição do Evento 5</h5>
+                    <a href="#" class="btn btn-primary">+</a>
+                </div>
+            </div>
+        </div>
+        <!-- Simulated Card 6 -->
+        <div class="col-md-6">
+            <div class="event card">
+                <div class="card-body">
+                    <div class="date-range">
+                        <span class="days">11 a 12</span>
+                        <span class="month">Jan</span>
+                    </div>
+                    <h5 class="card-title">Descrição do Evento 6</h5>
+                    <a href="#" class="btn btn-primary">+</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
