@@ -1,0 +1,195 @@
+<?php
+$meuArray = wpgetapi_endpoint('chsa_api', 'GetTorneios', array('debug' => false));
+
+echo '<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">';
+echo '<style>';
+echo '.event { margin-bottom: 30px; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }';
+echo '.card-body { display: flex; flex-direction: row; }';
+echo '.card-title { font-size: 18px; }';
+echo '.date { display: flex; }';
+echo '.date-row { display: flex; flex-direction: column; }';
+echo '.date-row span { display: flex; flex-direction: column; }';
+echo '.date-row p { font-size: 19px; padding: 2px; }';
+echo '.date .day { font-size: 20px; font-weight: bold; }';
+echo '.date .month { font-size: 14px; display: block; }';
+echo '.description { text-align: right; }';
+echo '.description span { display: inline-block; background-color: #007bff; color: #fff; text-decoration: none; padding: 5px 10px; }';
+echo '.description span:hover { background-color: #0056b3; }';
+echo '.form-row { display: flex; flex-wrap: wrap; margin-bottom: 20px; }'; // Ajustei a margem inferior para espaçamento entre os formulários
+
+// Estilos adicionais para os novos filtros
+echo '.filter-month { margin-left: 10px; }'; // Margem entre os filtros
+echo '.row { margin: 0; }'; // Remover margem padrão da classe .row do Bootstrap
+echo '</style>';
+echo '<div class="container">';
+
+// Formulário de busca
+echo '<form method="GET" class="mb-4">';
+echo '<div class="form-row align-items-end">'; // Alinha os itens na linha e na parte inferior
+
+// Campo para buscar por nome do evento
+echo '<div class="col-md-4 mb-3">';
+$eventName = isset($_GET['search_name']) ? $_GET['search_name'] : '';
+echo '<input type="text" name="search_name" value="'.$eventName.'" class="form-control" placeholder="Buscar por nome do evento">';
+echo '</div>';
+
+// Seleção para buscar por ano
+echo '<div class="col-md-2 mb-3">';
+$current_year = date("Y");
+$years = range($current_year, $current_year - 2);
+$selected_year = isset($_GET['search_year']) ? $_GET['search_year'] : $current_year;
+
+echo '<select name="search_year" class="form-control">';
+echo '<option value="">Não informar</option>';
+foreach ($years as $year) {
+    $selected = ($year == $selected_year) ? 'selected' : '';
+    echo '<option value="' . $year . '" ' . $selected . '>' . $year . '</option>';
+}
+echo '</select>';
+echo '</div>';
+
+// Seleção para buscar por mês
+echo '<div class="col-md-2 mb-3 filter-month">';
+$months = array(
+    '01' => 'Janeiro', '02' => 'Fevereiro', '03' => 'Março',
+    '04' => 'Abril', '05' => 'Maio', '06' => 'Junho',
+    '07' => 'Julho', '08' => 'Agosto', '09' => 'Setembro',
+    '10' => 'Outubro', '11' => 'Novembro', '12' => 'Dezembro'
+);
+$selected_month = isset($_GET['search_month']) ? $_GET['search_month'] : '';
+
+echo '<select name="search_month" class="form-control">';
+echo '<option value="">Selecione o mês</option>';
+foreach ($months as $key => $month) {
+    $selected = ($key == $selected_month) ? 'selected' : '';
+    echo '<option value="' . $key . '" ' . $selected . '>' . $month . '</option>';
+}
+echo '</select>';
+echo '</div>';
+
+// Botão de busca
+echo '<div class="col-md-2 mb-3">';
+echo '<button type="submit" class="btn btn-primary btn-block">Buscar</button>';
+echo '</div>';
+
+echo '</div>'; // .form-row
+echo '</form>';
+
+if (empty($meuArray)) {
+    echo "<div class='col-md-12'>Não foram encontrados eventos.</div>";
+} else {
+    // Filtragem dos resultados
+    $search_name = isset($_GET['search_name']) ? $_GET['search_name'] : '';
+    $search_year = isset($_GET['search_year']) ? $_GET['search_year'] : '';
+    $search_month = isset($_GET['search_month']) ? $_GET['search_month'] : '';
+
+    $filteredArray = array_filter($meuArray, function($elemento) use ($search_name, $search_year, $search_month) {
+        $dataInicioObj = new DateTime($elemento['DATA_INICIO']);
+        $year = $dataInicioObj->format('Y');
+        $month = $dataInicioObj->format('m');
+
+        $matchesName = empty($search_name) || stripos($elemento['DESCRICAO'], $search_name) !== false;
+        $matchesYear = empty($search_year) || $year == $search_year;
+        $matchesMonth = empty($search_month) || $month == $search_month;
+
+        return $matchesName && $matchesYear && $matchesMonth;
+    });
+
+    // Exibir resultados paginados
+    $resultadosPorPagina = 10;
+    $paginaAtual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+    $totalResultados = count($filteredArray);
+    $totalPaginas = ceil($totalResultados / $resultadosPorPagina);
+
+    // Calcular índices para a página atual
+    $indiceInicial = ($paginaAtual - 1) * $resultadosPorPagina;
+    $indiceFinal = min($indiceInicial + $resultadosPorPagina, $totalResultados);
+
+    // Página atual de resultados
+    $painel = array_slice($filteredArray, $indiceInicial, $resultadosPorPagina);
+
+    if (empty($painel)) {
+        echo "<div class='col-md-12'>Não foram encontrados eventos.</div>";
+    } else {
+        echo '<div class="row">';
+        foreach ($painel as $elemento) {
+            // Formatação das datas
+            $dataInicioObj = new DateTime($elemento['DATA_INICIO']);
+            $dataFimObj = new DateTime($elemento['DATA_FIM']);
+            $diaInicio = $dataInicioObj->format('d');
+            $mesInicio = strftime('%b', strtotime($elemento['DATA_INICIO']));
+            $diaFim = $dataFimObj->format('d');
+            $mesFim = strftime('%b', strtotime($elemento['DATA_FIM']));
+
+            // Ajuste do nome do mês para português
+            $meses = array(
+                "Jan" => "Jan", "Feb" => "Fev", "Mar" => "Mar", "Apr" => "Abr", "May" => "Mai", "Jun" => "Jun",
+                "Jul" => "Jul", "Aug" => "Ago", "Sep" => "Set", "Oct" => "Out", "Nov" => "Nov", "Dec" => "Dez"
+            );
+            $mesInicio = $meses[$mesInicio];
+            $mesFim = $meses[$mesFim];
+
+            echo '<div class="col-md-6">';
+            echo '<div class="event card mb-4">';
+            echo '<div class="card-body">';
+
+            // Exibição da data
+            if ($diaInicio == $diaFim && $mesInicio == $mesFim) {
+                echo '<div class="date">';
+                echo '<div class="date-row">';
+                echo '<span class="day">' . $diaInicio . '</span>';
+                echo '<span class="month">' . $mesInicio . '</span>';
+                echo '</div>';
+                echo '</div>';
+            } else {
+                echo '<div class="date">';
+                echo '<div class="date-row">';
+                echo '<span class="day">' . $diaInicio . '</span>';
+                echo '<span class="month">' . $mesInicio . '</span>';
+                echo '</div>';
+                echo '<div class="date-row">';
+                echo '<p>a</p>'; // Corrigido para texto placeholder
+                echo '</div>';
+                echo '<div class="date-row">';
+                echo '<span class="day">' . $diaFim . '</span>';
+                echo '<span class="month">' . $mesFim . '</span>';
+                echo '</div>';
+                echo '</div>';
+            }
+
+            // Título e descrição
+            echo '<h5 class="card-title">' . $elemento['DESCRICAO'] . '</h5>';
+            echo '<div class="description">';
+            echo '<a href="https://wordpress2.central.inputcenter.com.br:2080/home/lista-de-provas/?ID=' . $elemento['ID'] . '">';
+            echo '<span class="btn btn-primary float-right">Detalhes</span>';
+            echo '</a>';
+            echo '</div>';
+
+            echo '</div>'; // .card-body
+            echo '</div>'; // .event card
+            echo '</div>'; // .col-md-6
+        }
+        echo '</div>'; // .row
+
+        // Paginação
+        echo '<div class="row">';
+        echo '<div class="col-md-12">';
+        if ($totalPaginas > 1) {
+            echo '<ul class="pagination justify-content-center">';
+            $paginaAnterior = ($paginaAtual > 1) ? $paginaAtual - 1 : 1;
+            $paginaSeguinte = ($paginaAtual < $totalPaginas) ? $paginaAtual + 1 : $totalPaginas;
+            echo '<li class="page-item"><a class="page-link" href="?pagina=' . $paginaAnterior . '&search_name=' . $search_name . '&search_year=' . $search_year . '&search_month=' . $search_month . '">Anterior</a></li>';
+            for ($i = 1; $i <= $totalPaginas; $i++) {
+                $active = ($i == $paginaAtual) ? 'active' : '';
+                echo '<li class="page-item ' . $active . '"><a class="page-link" href="?pagina=' . $i . '&search_name=' . $search_name . '&search_year=' . $search_year . '&search_month=' . $search_month . '">' . $i . '</a></li>';
+            }
+            echo '<li class="page-item"><a class="page-link" href="?pagina=' . $paginaSeguinte . '&search_name=' . $search_name . '&search_year=' . $search_year . '&search_month=' . $search_month . '">Próxima</a></li>';
+            echo '</ul>';
+        }
+        echo '</div>';
+        echo '</div>'; // .row
+    }
+}
+
+echo '</div>'; // .container
+?>
